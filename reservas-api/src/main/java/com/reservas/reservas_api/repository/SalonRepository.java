@@ -9,5 +9,6 @@ public interface SalonRepository extends JpaRepository<Salon, Long> {
     List<Salon> findByGestorId(Long gestorId);
     boolean existsByNombreAndSucursalId(String nombre, Long sucursalId);
     boolean existsByNombreAndSucursalIdAndIdNot(String nombre, Long sucursalId, Long id);
+    boolean existsBySucursalIdAndActivoTrue(Long sucursalId);
 
 }

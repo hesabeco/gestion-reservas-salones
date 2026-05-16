@@ -25,4 +25,8 @@ public class Sucursal {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gestor_id", nullable = false)
     private Usuario gestor;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean activo = true;
 }

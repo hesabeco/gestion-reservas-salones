@@ -52,4 +52,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(MensajeResponse.builder().mensaje("Error interno del servidor").build());
     }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<MensajeResponse> handleDataIntegrityViolation(
+            org.springframework.dao.DataIntegrityViolationException ex) {
+        return ResponseEntity.badRequest()
+                .body(MensajeResponse.builder()
+                        .mensaje("No se puede eliminar el registro, tiene datos asociados")
+                        .build());
+    }
 }

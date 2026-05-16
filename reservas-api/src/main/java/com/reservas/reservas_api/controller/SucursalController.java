@@ -52,4 +52,10 @@ public class SucursalController {
                 .mensaje("Sucursal eliminada exitosamente")
                 .build());
     }
+
+    @PatchMapping("/{id}/desactivar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SucursalResponse> desactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(sucursalService.desactivar(id));
+    }
 }

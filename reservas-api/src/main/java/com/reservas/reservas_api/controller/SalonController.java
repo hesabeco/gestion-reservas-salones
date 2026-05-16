@@ -52,4 +52,10 @@ public class SalonController {
                 .mensaje("Salon eliminado exitosamente")
                 .build());
     }
+
+    @PatchMapping("/{id}/desactivar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SalonResponse> desactivar(@PathVariable Long id) {
+        return ResponseEntity.ok(salonService.desactivar(id));
+    }
 }

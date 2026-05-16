@@ -11,4 +11,5 @@ public interface SalonService {
     List<SalonResponse> obtenerTodos();
     List<SalonResponse> obtenerPorGestor(Long gestorId);
     void eliminar(Long id);
+    SalonResponse desactivar(Long id);
 }

@@ -9,6 +9,7 @@ import com.reservas.reservas_api.entity.Usuario;
 import com.reservas.reservas_api.exception.BusinessException;
 import com.reservas.reservas_api.exception.ResourceNotFoundException;
 import com.reservas.reservas_api.repository.SucursalRepository;
+import com.reservas.reservas_api.repository.SalonRepository;
 import com.reservas.reservas_api.repository.UsuarioRepository;
 import com.reservas.reservas_api.service.SucursalService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.List;
 public class SucursalServiceImpl implements SucursalService {
 
     private final SucursalRepository sucursalRepository;
+    private final SalonRepository salonRepository;
     private final UsuarioRepository usuarioRepository;
 
     @Override
@@ -95,6 +97,24 @@ public class SucursalServiceImpl implements SucursalService {
     private Sucursal obtenerSucursal(Long id) {
         return sucursalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sucursal no encontrada"));
+    }
+
+    @Override
+    public SucursalResponse desactivar(Long id) {
+        Sucursal sucursal = obtenerSucursal(id);
+
+        boolean tieneSalones = salonRepository.existsBySucursalIdAndActivoTrue(id);
+        log.info("Tiene salones activos: {}", tieneSalones);
+
+        if (tieneSalones) {
+            throw new BusinessException(
+                    "No se puede desactivar la sucursal, tiene salones activos asociados");
+        }
+
+        sucursal.setActivo(false);
+        sucursalRepository.save(sucursal);
+        log.info("Sucursal desactivada: {}", id);
+        return mapToResponse(sucursal);
     }
 
     public SucursalResponse mapToResponse(Sucursal sucursal) {

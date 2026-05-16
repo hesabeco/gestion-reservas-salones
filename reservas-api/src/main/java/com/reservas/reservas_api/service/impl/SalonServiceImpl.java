@@ -117,6 +117,15 @@ public class SalonServiceImpl implements SalonService {
                 .orElseThrow(() -> new ResourceNotFoundException("Salón no encontrado"));
     }
 
+    @Override
+    public SalonResponse desactivar(Long id) {
+        Salon salon = obtenerSalon(id);
+        salon.setActivo(false);
+        salonRepository.save(salon);
+        log.info("Salón desactivado: {}", id);
+        return mapToResponse(salon);
+    }
+
     public SalonResponse mapToResponse(Salon salon) {
         return SalonResponse.builder()
                 .id(salon.getId())
