@@ -14,7 +14,6 @@ import com.reservas.reservas_api.service.SucursalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Slf4j
@@ -27,6 +26,9 @@ public class SucursalServiceImpl implements SucursalService {
 
     @Override
     public SucursalResponse crear(SucursalRequest request) {
+        if (sucursalRepository.existsByNombre(request.getNombre())) {
+            throw new BusinessException("Ya existe una sucursal con ese nombre");
+        }
         Usuario gestor = obtenerGestor(request.getGestorId());
         Sucursal sucursal = Sucursal.builder()
                 .nombre(request.getNombre())
@@ -40,6 +42,9 @@ public class SucursalServiceImpl implements SucursalService {
 
     @Override
     public SucursalResponse actualizar(Long id, SucursalRequest request) {
+        if (sucursalRepository.existsByNombreAndIdNot(request.getNombre(), id)) {
+            throw new BusinessException("Ya existe una sucursal con ese nombre");
+        }
         Sucursal sucursal = obtenerSucursal(id);
         Usuario gestor = obtenerGestor(request.getGestorId());
         sucursal.setNombre(request.getNombre());

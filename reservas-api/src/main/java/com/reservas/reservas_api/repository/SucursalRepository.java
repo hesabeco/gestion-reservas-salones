@@ -6,4 +6,7 @@ import java.util.List;
 
 public interface SucursalRepository extends JpaRepository<Sucursal, Long> {
     List<Sucursal> findByGestorId(Long gestorId);
+    boolean existsByNombre(String nombre);
+    boolean existsByNombreAndIdNot(String nombre, Long id);
+
 }

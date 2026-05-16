@@ -3,6 +3,7 @@ package com.reservas.reservas_api.controller;
 import com.reservas.reservas_api.dto.request.SucursalRequest;
 import com.reservas.reservas_api.dto.response.SucursalResponse;
 import com.reservas.reservas_api.service.SucursalService;
+import com.reservas.reservas_api.dto.response.MensajeResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -45,8 +46,10 @@ public class SucursalController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<MensajeResponse> eliminar(@PathVariable Long id) {
         sucursalService.eliminar(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(MensajeResponse.builder()
+                .mensaje("Sucursal eliminada exitosamente")
+                .build());
     }
 }

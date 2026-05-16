@@ -2,6 +2,7 @@ package com.reservas.reservas_api.service;
 
 import com.reservas.reservas_api.dto.request.SucursalRequest;
 import com.reservas.reservas_api.dto.response.SucursalResponse;
+
 import java.util.List;
 
 public interface SucursalService {
