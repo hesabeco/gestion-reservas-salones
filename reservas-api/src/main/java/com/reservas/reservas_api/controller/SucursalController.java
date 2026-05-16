@@ -1,0 +1,52 @@
+package com.reservas.reservas_api.controller;
+
+import com.reservas.reservas_api.dto.request.SucursalRequest;
+import com.reservas.reservas_api.dto.response.SucursalResponse;
+import com.reservas.reservas_api.service.SucursalService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/sucursales")
+@RequiredArgsConstructor
+public class SucursalController {
+
+    private final SucursalService sucursalService;
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SucursalResponse> crear(@Valid @RequestBody SucursalRequest request) {
+        return ResponseEntity.ok(sucursalService.crear(request));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SucursalResponse> actualizar(@PathVariable Long id,
+                                                       @Valid @RequestBody SucursalRequest request) {
+        return ResponseEntity.ok(sucursalService.actualizar(id, request));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR')")
+    public ResponseEntity<SucursalResponse> obtenerPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(sucursalService.obtenerPorId(id));
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR')")
+    public ResponseEntity<List<SucursalResponse>> obtenerTodas() {
+        return ResponseEntity.ok(sucursalService.obtenerTodas());
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        sucursalService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
+}
