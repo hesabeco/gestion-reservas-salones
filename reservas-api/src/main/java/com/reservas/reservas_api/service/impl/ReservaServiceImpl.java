@@ -1,6 +1,7 @@
 package com.reservas.reservas_api.service.impl;
 
 import com.reservas.reservas_api.dto.request.FinalizarReservaRequest;
+import com.reservas.reservas_api.dto.request.RechazarReservaRequest;
 import com.reservas.reservas_api.dto.request.ReservaRequest;
 import com.reservas.reservas_api.dto.response.FinalizarReservaResponse;
 import com.reservas.reservas_api.dto.response.ReservaResponse;
@@ -11,6 +12,7 @@ import com.reservas.reservas_api.entity.*;
 import com.reservas.reservas_api.exception.BusinessException;
 import com.reservas.reservas_api.exception.ResourceNotFoundException;
 import com.reservas.reservas_api.repository.*;
+import com.reservas.reservas_api.service.NotificacionService;
 import com.reservas.reservas_api.service.ReservaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ public class ReservaServiceImpl implements ReservaService {
     private final ReservaRepository reservaRepository;
     private final HistoricoReservaRepository historicoReservaRepository;
     private final SalonRepository salonRepository;
+    private final NotificacionService notificacionService;
 
     @Override
     @Transactional
@@ -160,6 +163,72 @@ public class ReservaServiceImpl implements ReservaService {
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public void aprobar(Long id) {
+        Reserva reserva = obtenerReserva(id);
+
+        // Verifica que esté en estado PENDIENTE_APROBACION
+        verificarEstadoPendiente(reserva);
+
+        // Cambia estado a ACTIVA
+        reserva.setEstado(EstadoReserva.ACTIVA);
+        reservaRepository.save(reserva);
+
+        // Notifica al gestor responsable del salón via microservicio
+        notificacionService.enviarNotificacion(
+                reserva.getSalon().getGestor().getEmail(),
+                reserva.getDocumentoCliente(),
+                "Su reserva ha sido aprobada",
+                String.valueOf(reserva.getSalon().getId())
+        );
+
+        log.info("Reserva aprobada: id={}", id);
+    }
+
+    @Override
+    @Transactional
+    public void rechazar(Long id, RechazarReservaRequest request) {
+        Reserva reserva = obtenerReserva(id);
+
+        // Verifica que esté en estado PENDIENTE_APROBACION
+        verificarEstadoPendiente(reserva);
+
+        // Cambia estado a RECHAZADA con motivo obligatorio
+        reserva.setEstado(EstadoReserva.RECHAZADA);
+        reserva.setMotivoRechazo(request.getMotivo());
+        reservaRepository.save(reserva);
+
+        log.info("Reserva rechazada: id={}, motivo={}", id, request.getMotivo());
+    }
+
+    @Override
+    public void verificarExpiracion() {
+        // Busca todas las reservas en PENDIENTE_APROBACION con más de 48 y las marca automáticamente como EXPIRADA
+        reservaRepository.findAll()
+                .stream()
+                .filter(r -> r.getEstado() == EstadoReserva.PENDIENTE_APROBACION
+                        && r.getFechaCreacion().isBefore(LocalDateTime.now().minusHours(48)))
+                .forEach(r -> {
+                    r.setEstado(EstadoReserva.EXPIRADA);
+                    reservaRepository.save(r);
+                    log.warn("Reserva expirada automáticamente: id={}", r.getId());
+                });
+    }
+
+    // Obtiene la reserva o lanzar error
+    private Reserva obtenerReserva(Long id) {
+        return reservaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
+    }
+
+    //Verifica que la reserva esté en PENDIENTE_APROBACION
+    private void verificarEstadoPendiente(Reserva reserva) {
+        if (reserva.getEstado() != EstadoReserva.PENDIENTE_APROBACION) {
+            throw new BusinessException("La reserva no está en estado PENDIENTE_APROBACION");
+        }
     }
 
     public ReservaResponse mapToResponse(Reserva reserva) {

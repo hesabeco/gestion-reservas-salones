@@ -1,8 +1,10 @@
 package com.reservas.reservas_api.controller;
 
 import com.reservas.reservas_api.dto.request.FinalizarReservaRequest;
+import com.reservas.reservas_api.dto.request.RechazarReservaRequest;
 import com.reservas.reservas_api.dto.request.ReservaRequest;
 import com.reservas.reservas_api.dto.response.FinalizarReservaResponse;
+import com.reservas.reservas_api.dto.response.MensajeResponse;
 import com.reservas.reservas_api.dto.response.ReservaResponse;
 import com.reservas.reservas_api.service.ReservaService;
 import jakarta.validation.Valid;
@@ -44,5 +46,24 @@ public class ReservaController {
     @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR')")
     public ResponseEntity<List<ReservaResponse>> buscarPorDocumento(@RequestParam String documento) {
         return ResponseEntity.ok(reservaService.buscarPorDocumento(documento));
+    }
+
+    @PostMapping("/{id}/aprobar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MensajeResponse> aprobar(@PathVariable Long id) {
+        reservaService.aprobar(id);
+        return ResponseEntity.ok(MensajeResponse.builder()
+                .mensaje("Reserva aprobada exitosamente")
+                .build());
+    }
+
+    @PostMapping("/{id}/rechazar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MensajeResponse> rechazar(@PathVariable Long id,
+                                                    @Valid @RequestBody RechazarReservaRequest request) {
+        reservaService.rechazar(id, request);
+        return ResponseEntity.ok(MensajeResponse.builder()
+                .mensaje("Reserva rechazada exitosamente")
+                .build());
     }
 }
