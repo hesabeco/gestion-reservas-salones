@@ -8,12 +8,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/indicadores")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class IndicadorController {
 
     private final IndicadorService indicadorService;

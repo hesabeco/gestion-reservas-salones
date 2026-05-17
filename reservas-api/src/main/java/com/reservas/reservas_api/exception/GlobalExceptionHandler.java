@@ -49,8 +49,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<MensajeResponse> handleGenericException(Exception ex) {
+        ex.printStackTrace(); // 👈 IMPORTANTE
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(MensajeResponse.builder().mensaje("Error interno del servidor").build());
+                .body(new MensajeResponse(ex.getMessage()));
+       // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+         //       .body(MensajeResponse.builder().mensaje("Error interno del servidor").build());
     }
 
     @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
