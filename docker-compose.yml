@@ -1,0 +1,39 @@
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: postgres_reservas
+    environment:
+      POSTGRES_DB: reservas_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  reservas-api:
+    build: ./reservas-api
+    container_name: reservas_api
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: reservas_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: clave-super-secreta-de-al-menos-32-caracteres-para-seguridad
+      JWT_EXPIRATION: 21600000
+      NOTIFICATION_SERVICE_URL: http://notificaciones-api:8081
+    depends_on:
+      - postgres
+
+  notificaciones-api:
+    build: ./notificaciones-api
+    container_name: notificaciones_api
+    ports:
+      - "8081:8081"
+
+volumes:
+  postgres_data:
