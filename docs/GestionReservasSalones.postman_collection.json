@@ -1,0 +1,990 @@
+{
+  "info": {
+    "_postman_id": "4c7a6066-d541-4dbd-9e38-43ac6bae57bf",
+    "name": "Gestion Reservas Salones",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "39209095",
+    "_collection_link": "https://go.postman.co/collection/39209095-4c7a6066-d541-4dbd-9e38-43ac6bae57bf?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "pm.environment.set(\"token_admin\", response.token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"admin@mail.com\",\r\n    \"contrasenia\": \"admin\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Gestor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "pm.environment.set(\"token_gestor\", response.token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"carlos.perez@eventos.com\",\r\n    \"contrasenia\": \"gestor\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar gestor",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"Gestor 4\",\r\n    \"email\": \"gestor4@mail.com\",\r\n    \"contrasenia\": \"gestor4\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"Gestor 1\",\r\n    \"email\": \"gestor1@mail.com\",\r\n    \"contrasenia\": \"gestor1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints para autenticación de usuarios. Login devuelve token JWT que se guarda automáticamente en las variables de entorno.",
+      "auth": {
+        "type": "bearer"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sucursal",
+      "item": [
+        {
+          "name": "Registrar Sucursal",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkBtYWlsLmNvbSIsInJvbCI6IkFETUlOIiwiaWF0IjoxNzc4ODg5ODc2LCJleHAiOjE3Nzg5MTE0NzZ9.V0EBErKDie3IKQkdhbYrKscDPCrqOeynXbLxjTNBoWjThAq1n13J5m5BwFmGzzfO",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"Sucursal Sur\",\r\n    \"direccion\": \"Avenida 1 # 10-53\",\r\n    \"gestorId\": 3\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/sucursales",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "sucursales"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Sucursales",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sucursales",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "sucursales"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Sucursales por id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sucursales/{{sucursal_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "sucursales",
+                "{{sucursal_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Sucursal",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"Eventos Cali\",\r\n    \"direccion\": \"Av 8N # 23-45, Cali\",\r\n    \"gestorId\": 6\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/sucursales/{{sucursal_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "sucursales",
+                "{{sucursal_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Sucursal",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sucursales/{{sucursal_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "sucursales",
+                "{{sucursal_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Desactivar Sucursal",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sucursales/{{sucursal_id}}/desactivar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "sucursales",
+                "{{sucursal_id}}",
+                "desactivar"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints para gestión de sucursales. Solo accesible por rol ADMIN."
+    },
+    {
+      "name": "Salones",
+      "item": [
+        {
+          "name": "Registrar Salones",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"Salon Norte VIP\",\r\n    \"capacidadMaxima\": 150,\r\n    \"costoPorHora\": 150000,\r\n    \"sucursalId\": 1,\r\n    \"gestorId\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/salones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "salones"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Salones",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/salones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "salones"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Salones por id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/salones/{{salon_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "salones",
+                "{{salon_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Salon",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"Salón Ejecutivo\",\r\n    \"capacidadMaxima\": 25,\r\n    \"costoPorHora\": 50000,\r\n    \"sucursalId\": 1,\r\n    \"gestorId\": 3\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/salones/{{salon_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "salones",
+                "{{salon_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Salon",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/salones/{{salon_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "salones",
+                "{{salon_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Desactivar Salon",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/salones/{{salon_id}}/desactivar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "salones",
+                "{{salon_id}}",
+                "desactivar"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints para gestión de salones. Solo accesible por rol ADMIN."
+    },
+    {
+      "name": "Reservas",
+      "item": [
+        {
+          "name": "Registrar Reserva",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_gestor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"documentoCliente\": \"123456789\",\r\n    \"nombreCliente\": \"Martha Ordoñez\",\r\n    \"salonId\": 1,\r\n    \"fechaInicio\": \"2026-05-18T08:00:00\",\r\n    \"fechaFinEstimada\": \"2026-05-18T10:00:00\",\r\n    \"asistentes\": 20\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reservas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listado de reservas activas por salon",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_gestor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservas/activas/salon/{{salon_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservas",
+                "activas",
+                "salon",
+                "{{salon_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar por documento",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_gestor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservas/buscar?documento=123",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservas",
+                "buscar"
+              ],
+              "query": [
+                {
+                  "key": "documento",
+                  "value": "123"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Finalizar reserva",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_gestor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"documentoCliente\": \"23456789\",\r\n    \"salonId\": 7\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reservas/finalizar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservas",
+                "finalizar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rechazar Reserva",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"motivo\": \"La reserva no cumple con los requisitos mínimos\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reservas/{{reserva_id}}/rechazar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservas",
+                "{{reserva_id}}",
+                "rechazar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Aprobar Reserva",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reservas/{{reserva_id}}/aprobar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reservas",
+                "{{reserva_id}}",
+                "aprobar"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints para gestión de reservas. Registro y finalización por GESTOR, aprobación y rechazo por ADMIN."
+    },
+    {
+      "name": "Notificaciones",
+      "item": [
+        {
+          "name": "Envio Notificación",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"carlos.perez@eventos.com\",\r\n    \"documento\": \"34567890\",\r\n    \"mensaje\": \"Su reserva ha sido aprobada\",\r\n    \"salonId\": \"1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/notificaciones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notificaciones"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoint para envío de notificaciones a gestores. Solo accesible por rol ADMIN. Valida que el cliente tenga una reserva activa en el salón indicado antes de enviar."
+    },
+    {
+      "name": "Indicadores",
+      "item": [
+        {
+          "name": "Top 10 Clientes Global",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/indicadores/top10-global",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "indicadores",
+                "top10-global"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Top 10 Clientes por Salon",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkBtYWlsLmNvbSIsInJvbCI6IkFETUlOIiwiaWF0IjoxNzc5MDIxNzE2LCJleHAiOjE3NzkwNDMzMTZ9.-huznWeheT1VoVVF2xtyad43wkx0eiYSyiJjEiS8UOPXxB_g1ZMt4si7rW_VYl6b",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/indicadores/top10-salon/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "indicadores",
+                "top10-salon",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Primera Vez en Salon",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkBtYWlsLmNvbSIsInJvbCI6IkFETUlOIiwiaWF0IjoxNzc5MDIxNzE2LCJleHAiOjE3NzkwNDMzMTZ9.-huznWeheT1VoVVF2xtyad43wkx0eiYSyiJjEiS8UOPXxB_g1ZMt4si7rW_VYl6b",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/indicadores/primera-vez/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "indicadores",
+                "primera-vez",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Top 3 Sucursales Mes",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/indicadores/top3-sucursales-mes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "indicadores",
+                "top3-sucursales-mes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ganancias por Salon",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_gestor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/indicadores/ganancias/salon/{{salon_id}}\n",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "indicadores",
+                "ganancias",
+                "salon",
+                "{{salon_id}}\n"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints para métricas e indicadores del sistema. Top 10 y primera vez accesibles por ADMIN y GESTOR. Ganancias solo GESTOR. Top 3 sucursales solo ADMIN."
+    }
+  ]
+}
