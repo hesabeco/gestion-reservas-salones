@@ -106,6 +106,13 @@ cd reservas-api
 ./mvnw spring-boot:run
 ```
 
+### 5. Ejecutar pruebas
+
+```bash
+cd reservas-api
+./mvnw test
+```
+
 Las migraciones de Flyway se ejecutan automáticamente al arrancar.
 
 ## Datos Iniciales
