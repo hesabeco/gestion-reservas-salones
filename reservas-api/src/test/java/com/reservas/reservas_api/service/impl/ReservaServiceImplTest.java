@@ -8,6 +8,7 @@ import com.reservas.reservas_api.repository.HistoricoReservaRepository;
 import com.reservas.reservas_api.repository.ReservaRepository;
 import com.reservas.reservas_api.repository.SalonRepository;
 import com.reservas.reservas_api.service.NotificacionService;
+import com.reservas.reservas_api.util.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +23,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +41,9 @@ class ReservaServiceImplTest {
 
     @Mock
     private NotificacionService notificacionService;
+
+    @Mock
+    private SecurityUtils securityUtils;
 
     @InjectMocks
     private ReservaServiceImpl reservaService;
@@ -93,9 +99,13 @@ class ReservaServiceImplTest {
         // Arrange
         when(reservaRepository.existsByDocumentoClienteAndEstado(
                 "123456789", EstadoReserva.ACTIVA)).thenReturn(false);
-        when(salonRepository.findById(1L)).thenReturn(Optional.of(salon));
+
+        when(securityUtils.obtenerSalonConValidacionAcceso(eq(1L), anyString()))
+                .thenReturn(salon);
+
         when(reservaRepository.findReservasSolapadas(any(), any(), any()))
                 .thenReturn(Collections.emptyList());
+
         when(reservaRepository.save(any(Reserva.class)))
                 .thenAnswer(invocation -> {
                     Reserva r = invocation.getArgument(0);
@@ -121,28 +131,30 @@ class ReservaServiceImplTest {
         // Act & Assert
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> reservaService.registrar(reservaRequest));
+
         assertTrue(ex.getMessage().contains("ya existe una reserva activa"));
         verify(reservaRepository, never()).save(any());
+        verify(securityUtils, never()).obtenerSalonConValidacionAcceso(any(), anyString());
     }
 
     @Test
     void registrar_capacidadInsuficiente_lanzaExcepcion() {
         // Arrange
-        Reserva reservaExistente = Reserva.builder()
-                .asistentes(20)
-                .build();
-
         when(reservaRepository.existsByDocumentoClienteAndEstado(
                 "123456789", EstadoReserva.ACTIVA)).thenReturn(false);
-        when(salonRepository.findById(1L)).thenReturn(Optional.of(salon));
-        when(reservaRepository.findReservasSolapadas(any(), any(), any()))
-                .thenReturn(Collections.singletonList(reservaExistente));
 
-        reservaRequest.setAsistentes(10); // 20 + 10 = 30 > 25 capacidad
+        when(securityUtils.obtenerSalonConValidacionAcceso(eq(1L), anyString()))
+                .thenReturn(salon);
+
+        when(reservaRepository.findReservasSolapadas(any(), any(), any()))
+                .thenReturn(Collections.emptyList());
+
+        reservaRequest.setAsistentes(30); // 30 > 25 capacidad
 
         // Act & Assert
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> reservaService.registrar(reservaRequest));
+
         assertTrue(ex.getMessage().contains("capacidad insuficiente"));
         verify(reservaRepository, never()).save(any());
     }
@@ -151,13 +163,17 @@ class ReservaServiceImplTest {
     void registrar_salonInactivo_lanzaExcepcion() {
         // Arrange
         salon.setActivo(false);
+
         when(reservaRepository.existsByDocumentoClienteAndEstado(
                 "123456789", EstadoReserva.ACTIVA)).thenReturn(false);
-        when(salonRepository.findById(1L)).thenReturn(Optional.of(salon));
+
+        when(securityUtils.obtenerSalonConValidacionAcceso(eq(1L), anyString()))
+                .thenReturn(salon);
 
         // Act & Assert
         assertThrows(BusinessException.class,
                 () -> reservaService.registrar(reservaRequest));
+
         verify(reservaRepository, never()).save(any());
     }
 
@@ -187,6 +203,7 @@ class ReservaServiceImplTest {
         assertNotNull(response);
         assertEquals("Reserva finalizada", response.getMensaje());
         assertTrue(response.getTotalCobrado() > 0);
+        verify(securityUtils).validarAccesoASalon(any(Salon.class), anyString());
         verify(historicoReservaRepository).save(any());
         verify(reservaRepository).delete(reservaActiva);
     }
@@ -201,7 +218,9 @@ class ReservaServiceImplTest {
         // Act & Assert
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> reservaService.finalizar(finalizarRequest));
+
         assertTrue(ex.getMessage().contains("No se puede Finalizar Reserva"));
         verify(historicoReservaRepository, never()).save(any());
+        verify(securityUtils, never()).validarAccesoASalon(any(), anyString());
     }
 }
