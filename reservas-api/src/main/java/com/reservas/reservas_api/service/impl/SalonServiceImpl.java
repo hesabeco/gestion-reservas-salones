@@ -17,6 +17,7 @@ import com.reservas.reservas_api.service.SalonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import com.reservas.reservas_api.util.SecurityUtils;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class SalonServiceImpl implements SalonService {
     private final SalonRepository salonRepository;
     private final SucursalRepository sucursalRepository;
     private final UsuarioRepository usuarioRepository;
+    private final SecurityUtils securityUtils;
 
     @Override
     public SalonResponse crear(SalonRequest request) {
@@ -150,5 +152,22 @@ public class SalonServiceImpl implements SalonService {
                         .rol(salon.getGestor().getRol().name())
                         .build())
                 .build();
+    }
+
+    @Override
+    public List<SalonResponse> obtenerSegunUsuarioAutenticado() {
+        Usuario usuario = securityUtils.obtenerUsuarioAutenticado();
+
+        if (securityUtils.esAdmin(usuario)) {
+            return salonRepository.findAll()
+                    .stream()
+                    .map(this::mapToResponse)
+                    .toList();
+        }
+
+        return salonRepository.findByGestorId(usuario.getId())
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 }

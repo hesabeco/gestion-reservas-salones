@@ -30,7 +30,7 @@ public class NotificacionServiceImpl implements NotificacionService {
     private String notificationServiceUrl;
 
     @Override
-    public void enviarNotificacion(String email, String documento, String mensaje, String salonId) {
+    public MensajeResponse enviarNotificacion(String email, String documento, String mensaje, String salonId) {
         Long salonIdLong = Long.parseLong(salonId);
 
         if (!reservaRepository.existsByDocumentoClienteAndSalonIdAndEstado(
@@ -55,6 +55,10 @@ public class NotificacionServiceImpl implements NotificacionService {
                     MensajeResponse.class
             );
             log.info("Notificación enviada: {}", response != null ? response.getMensaje() : "sin respuesta");
+            return response;
+
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error al enviar notificación: {}", e.getMessage());
             throw new BusinessException("Error al conectar con el servicio de notificaciones");

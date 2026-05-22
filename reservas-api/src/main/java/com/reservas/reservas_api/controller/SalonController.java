@@ -43,7 +43,7 @@ public class SalonController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR')")
     public ResponseEntity<List<SalonResponse>> obtenerTodos() {
-        return ResponseEntity.ok(salonService.obtenerTodos());
+        return ResponseEntity.ok(salonService.obtenerSegunUsuarioAutenticado());
     }
 
     @DeleteMapping("/{id}")

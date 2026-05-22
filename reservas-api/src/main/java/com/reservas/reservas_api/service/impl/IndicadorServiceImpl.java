@@ -10,6 +10,7 @@ import com.reservas.reservas_api.service.IndicadorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import com.reservas.reservas_api.util.SecurityUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public class IndicadorServiceImpl implements IndicadorService {
 
     private final ReservaRepository reservaRepository;
     private final HistoricoReservaRepository historicoReservaRepository;
+    private final SecurityUtils securityUtils;
 
     @Override
     public List<ClienteTopResponse> top10ClientesGlobal() {
@@ -67,6 +69,7 @@ public class IndicadorServiceImpl implements IndicadorService {
 
     @Override
     public List<ClienteTopResponse> top10ClientesPorSalon(Long salonId) {
+        securityUtils.obtenerSalonConValidacionAcceso(salonId, "No puede consultar indicadores de un salón que no tiene asociado");
         // Combina reservas activas + histórico para un salón específico
         Map<String, ClienteTopResponse> mapa = new java.util.HashMap<>();
 
@@ -104,19 +107,13 @@ public class IndicadorServiceImpl implements IndicadorService {
 
     @Override
     public List<ClienteTopResponse> primeraVezEnSalon(Long salonId) {
+        securityUtils.obtenerSalonConValidacionAcceso(salonId, "No puede consultar indicadores de un salón que no tiene asociado");
         // Retorna reservas activas de clientes que nunca han reservado
         // antes en ese salón (no tienen registros en el histórico)
         return reservaRepository.findBySalonIdAndEstado(salonId, EstadoReserva.ACTIVA)
                 .stream()
-                .filter(r -> {
-                    // Verifica que el cliente no tenga reservas anteriores en el histórico
-                    long totalHistorico = historicoReservaRepository
-                            .findTop10ClientesBySalon(salonId)
-                            .stream()
-                            .filter(h -> h[0].equals(r.getDocumentoCliente()))
-                            .count();
-                    return totalHistorico == 0;
-                })
+                .filter(r -> !historicoReservaRepository
+                        .existsByDocumentoClienteAndSalonId(r.getDocumentoCliente(), salonId))
                 .map(r -> ClienteTopResponse.builder()
                         .documentoCliente(r.getDocumentoCliente())
                         .nombreCliente(r.getNombreCliente())
@@ -127,6 +124,7 @@ public class IndicadorServiceImpl implements IndicadorService {
 
     @Override
     public GananciasResponse obtenerGanancias(Long salonId) {
+        securityUtils.obtenerSalonConValidacionAcceso(salonId, "No puede consultar indicadores de un salón que no tiene asociado");
         LocalDateTime ahora = LocalDateTime.now();
 
         // Período de hoy: desde las 00:00 hasta las 23:59

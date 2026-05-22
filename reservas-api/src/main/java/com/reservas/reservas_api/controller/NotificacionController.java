@@ -21,12 +21,12 @@ public class NotificacionController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MensajeResponse> enviar(@Valid @RequestBody NotificacionRequest request) {
-        notificacionService.enviarNotificacion(
+        MensajeResponse response = notificacionService.enviarNotificacion(
                 request.getEmail(),
                 request.getDocumento(),
                 request.getMensaje(),
                 request.getSalonId()
         );
-        return ResponseEntity.ok(MensajeResponse.builder().mensaje("Notificación Enviada").build());
+        return ResponseEntity.ok(response);
     }
 }

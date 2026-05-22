@@ -10,6 +10,7 @@ import com.reservas.reservas_api.dto.response.SucursalResponse;
 import com.reservas.reservas_api.dto.response.UsuarioResponse;
 import com.reservas.reservas_api.entity.*;
 import com.reservas.reservas_api.exception.BusinessException;
+import com.reservas.reservas_api.exception.UnauthorizedException;
 import com.reservas.reservas_api.exception.ResourceNotFoundException;
 import com.reservas.reservas_api.repository.*;
 import com.reservas.reservas_api.service.NotificacionService;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.reservas.reservas_api.util.SecurityUtils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -33,6 +35,7 @@ public class ReservaServiceImpl implements ReservaService {
     private final HistoricoReservaRepository historicoReservaRepository;
     private final SalonRepository salonRepository;
     private final NotificacionService notificacionService;
+    private final SecurityUtils securityUtils;
 
     @Override
     @Transactional
@@ -50,8 +53,10 @@ public class ReservaServiceImpl implements ReservaService {
         }
 
         // Obtiene salón
-        Salon salon = salonRepository.findById(request.getSalonId())
-                .orElseThrow(() -> new ResourceNotFoundException("Salón no encontrado"));
+        Salon salon = securityUtils.obtenerSalonConValidacionAcceso(
+                request.getSalonId(),
+                "No puede registrar reservas en un salón que no tiene asociado"
+        );
 
         // Valida que el salón y sucursal estén activos
         if (!salon.getActivo()) {
@@ -65,11 +70,12 @@ public class ReservaServiceImpl implements ReservaService {
         List<Reserva> solapadas = reservaRepository.findReservasSolapadas(
                 salon.getId(), request.getFechaInicio(), request.getFechaFinEstimada());
 
-        int asistentesComprometidos = solapadas.stream()
-                .mapToInt(Reserva::getAsistentes)
-                .sum();
+        if (!solapadas.isEmpty()) {
+            throw new BusinessException(
+                    "No se puede Registrar Reserva, el salón ya tiene una reserva activa en el rango horario solicitado");
+        }
 
-        if (asistentesComprometidos + request.getAsistentes() > salon.getCapacidadMaxima()) {
+        if (request.getAsistentes() > salon.getCapacidadMaxima()) {
             throw new BusinessException(
                     "No se puede Registrar Reserva, capacidad insuficiente en el salón");
         }
@@ -110,6 +116,7 @@ public class ReservaServiceImpl implements ReservaService {
                         EstadoReserva.ACTIVA)
                 .orElseThrow(() -> new BusinessException(
                         "No se puede Finalizar Reserva, no existe una reserva activa para este documento en el salón"));
+        securityUtils.validarAccesoASalon(reserva.getSalon(), "No puede finalizar reservas de un salón que no tiene asociado");
 
         LocalDateTime fechaFinReal = LocalDateTime.now();
 
@@ -150,6 +157,8 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public List<ReservaResponse> obtenerActivasPorSalon(Long salonId) {
+        securityUtils.obtenerSalonConValidacionAcceso(salonId, "No puede consultar reservas de un salón que no tiene asociado");
+
         return reservaRepository.findBySalonIdAndEstado(salonId, EstadoReserva.ACTIVA)
                 .stream()
                 .map(this::mapToResponse)
@@ -158,9 +167,13 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public List<ReservaResponse> buscarPorDocumento(String documento) {
+        Usuario usuarioAutenticado = securityUtils.obtenerUsuarioAutenticado();
+
         return reservaRepository.findByDocumentoClienteContainingAndEstado(
                         documento, EstadoReserva.ACTIVA)
                 .stream()
+                .filter(reserva -> securityUtils.esAdmin(usuarioAutenticado)
+                        || reserva.getSalon().getGestor().getId().equals(usuarioAutenticado.getId()))
                 .map(this::mapToResponse)
                 .toList();
     }
@@ -261,4 +274,5 @@ public class ReservaServiceImpl implements ReservaService {
                 .motivoRechazo(reserva.getMotivoRechazo())
                 .build();
     }
+
 }

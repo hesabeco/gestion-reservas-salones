@@ -43,7 +43,7 @@ public class SucursalController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR')")
     public ResponseEntity<List<SucursalResponse>> obtenerTodas() {
-        return ResponseEntity.ok(sucursalService.obtenerTodas());
+        return ResponseEntity.ok(sucursalService.obtenerSegunUsuarioAutenticado());
     }
 
     @DeleteMapping("/{id}")

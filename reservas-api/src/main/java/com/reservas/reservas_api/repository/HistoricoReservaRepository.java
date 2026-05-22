@@ -54,4 +54,5 @@ public interface HistoricoReservaRepository extends JpaRepository<HistoricoReser
 """)
     List<Object[]> findTop10ClientesBySalon(@Param("salonId") Long salonId);
 
+    boolean existsByDocumentoClienteAndSalonId(String documentoCliente, Long salonId);
 }

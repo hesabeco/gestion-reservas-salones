@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import com.reservas.reservas_api.util.SecurityUtils;
 
 @Slf4j
 @Service
@@ -25,6 +26,7 @@ public class SucursalServiceImpl implements SucursalService {
     private final SucursalRepository sucursalRepository;
     private final SalonRepository salonRepository;
     private final UsuarioRepository usuarioRepository;
+    private final SecurityUtils securityUtils;
 
     @Override
     public SucursalResponse crear(SucursalRequest request) {
@@ -129,5 +131,22 @@ public class SucursalServiceImpl implements SucursalService {
                         .rol(sucursal.getGestor().getRol().name())
                         .build())
                 .build();
+    }
+
+    @Override
+    public List<SucursalResponse> obtenerSegunUsuarioAutenticado() {
+        Usuario usuario = securityUtils.obtenerUsuarioAutenticado();
+
+        if (securityUtils.esAdmin(usuario)) {
+            return sucursalRepository.findAll()
+                    .stream()
+                    .map(this::mapToResponse)
+                    .toList();
+        }
+
+        return sucursalRepository.findByGestorId(usuario.getId())
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 }

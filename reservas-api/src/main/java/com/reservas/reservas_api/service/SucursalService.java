@@ -13,4 +13,5 @@ public interface SucursalService {
     List<SucursalResponse> obtenerPorGestor(Long gestorId);
     void eliminar(Long id);
     SucursalResponse desactivar(Long id);
+    List<SucursalResponse> obtenerSegunUsuarioAutenticado();
 }
